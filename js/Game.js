@@ -3,7 +3,8 @@ var SideScroller = SideScroller || {};
 SideScroller.Game = function(){};
 
 var direction = 'right',
-    reiniciar = false;
+    reiniciar = false,
+    puntaje = 0;
 
 SideScroller.Game.prototype = {
   preload: function() {
@@ -15,9 +16,6 @@ SideScroller.Game.prototype = {
     direction = 'right',
     reiniciar = false;
 
-    var style = { font: "40px Arial", fill: "#ffffff", wordWrap: true, wordWrapWidth: 100};
-    this.tiempo = this.game.add.text(60, 70, "60", style);
-    this.tiempo.anchor.set(0.5);
     this.game.time.events.add(Phaser.Timer.SECOND * 60, this.finDelJuego, this);
 
     fondo = this.game.add.tileSprite( this.game.world.width/2, 100, 300, 162, 'fondo'); 
@@ -25,13 +23,15 @@ SideScroller.Game.prototype = {
     this.map = this.game.add.tilemap('map');
     this.layer = this.map.createLayer('Tile Layer 1');
     //this.layer = this.map.createLayer('LayerUno');
-    this.map.setCollisionBetween(1, 12)
+
     //this.map.setCollisionBetween(57, 60);
     this.map.addTilesetImage('ground_1x1');
     this.map.addTilesetImage('walls_1x2');
     this.map.addTilesetImage('tiles2');
     this.map.addTilesetImage('paquete');
     //this.map.addTilesetImage('kenney', 'tiles');
+    this.map.setCollisionBetween(0, 12);
+    this.map.setCollision(0);
 
     //  Creates a layer from the World1 layer in the map data.
     //  A Layer is effectively like a Phaser.Sprite, so is added to the display list.
@@ -49,7 +49,7 @@ SideScroller.Game.prototype = {
 
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    this.map.createFromObjects('Object Layer 1', 34, 'coin', 0, true, false, this.coins);
+    this.map.createFromObjects('Object Layer 2', 34, 'coin', 0, true, false, this.coins);
     this.coins.callAll('animations.add', 'animations', 'spin', [0, 1, 2, 3, 4, 5], 10, true);
     this.coins.callAll('animations.play', 'animations', 'spin');
     this.map.createFromObjects('Object Layer 1', 196, 'paquete', 0, true, false, this.paquetes);
@@ -63,7 +63,7 @@ SideScroller.Game.prototype = {
 
 
     //create player
-    this.player = this.game.add.sprite(20, 20, 'menRun');
+    this.player = this.game.add.sprite(40, 60, 'menRun');
     this.player.anchor.setTo(0.5, 0.5);
     this.player.animations.add('walk');
     this.player.animations.play('walk',30,true);
@@ -163,7 +163,8 @@ SideScroller.Game.prototype = {
       //restart the game if reaching the edge
       if(reiniciar) {
         reiniciar = false;
-        this.game.state.start('Game');
+        location.reload();
+        //this.game.state.restart();
       }
 
       if(this.player.x <= -this.tileSize) {
@@ -237,7 +238,7 @@ SideScroller.Game.prototype = {
   },
   collect: function(player, collectable) {
     //play audio
-    console.log("Moneda !");
+    puntaje += 2;
     this.coinSound.play();
     collectable.kill();
     //remove sprite
@@ -355,5 +356,6 @@ SideScroller.Game.prototype = {
     {
         this.game.debug.text(this.game.time.fps || '--', 20, 70, "#00ff00", "40px Courier");  
         this.game.debug.text(Math.round(this.game.time.events.duration / 1000) || '--', 80, 70, "#ffffff", "40px Courier"); 
+         this.game.debug.text("Puntaje:"+puntaje || 'Puntaje: --', 140, 70, "#ffffff", "40px Courier");
     } 
 };
